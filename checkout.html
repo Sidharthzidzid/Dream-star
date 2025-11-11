@@ -4,8 +4,11 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Checkout | FASHION Store</title>
+
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+
   <script>
     tailwind.config = {
       darkMode: 'class',
@@ -13,43 +16,206 @@
     }
   </script>
 </head>
+
 <body class="bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-100 antialiased">
 
-  <div class="min-h-screen flex flex-col justify-center items-center px-4">
-    <div class="bg-white dark:bg-gray-800 shadow-lg rounded-xl p-8 max-w-md w-full text-center">
-      <h1 class="text-2xl font-bold mb-4">Checkout</h1>
-      <p class="text-gray-600 dark:text-gray-300 mb-6">Total Amount to Pay</p>
-      <div id="total-amount" class="text-4xl font-extrabold text-indigo-600 mb-8">₹0</div>
+  <main class="min-h-screen flex flex-col items-center py-10 px-4">
+    <div class="bg-white dark:bg-gray-800 shadow-xl rounded-xl p-8 w-full max-w-3xl">
+      <h1 class="text-3xl font-bold mb-6 text-center">Checkout</h1>
 
-      <button id="pay-btn" class="w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-lg transition">
-        Pay with Google Pay
+      <!-- Cart Items -->
+      <div id="cart-summary" class="divide-y divide-gray-200 dark:divide-gray-700 mb-8"></div>
+
+      <!-- Price Summary -->
+      <div class="bg-gray-100 dark:bg-gray-700 rounded-lg p-4 mb-8">
+        <div class="flex justify-between mb-2">
+          <span>Subtotal</span>
+          <span id="subtotal">₹0</span>
+        </div>
+        <div class="flex justify-between mb-2 text-green-600">
+          <span>Discount (10%)</span>
+          <span id="discount">-₹0</span>
+        </div>
+        <div class="flex justify-between mb-2">
+          <span>Delivery</span>
+          <span class="text-green-600">Free</span>
+        </div>
+        <hr class="my-2 border-gray-300 dark:border-gray-600">
+        <div class="flex justify-between font-semibold text-lg">
+          <span>Total</span>
+          <span id="total">₹0</span>
+        </div>
+      </div>
+
+      <!-- Address Form -->
+      <h2 class="text-xl font-semibold mb-4">Delivery Details</h2>
+      <form id="address-form" class="space-y-4 mb-6">
+        <div>
+          <label class="block mb-1 font-medium">Full Address</label>
+          <textarea id="address" rows="3" required
+            class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 dark:bg-gray-700 dark:border-gray-600 bg-white"></textarea>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label class="block mb-1 font-medium">Pincode</label>
+            <input id="pincode" type="number" required
+              class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 dark:bg-gray-700 dark:border-gray-600 bg-white">
+          </div>
+          <div>
+            <label class="block mb-1 font-medium">Landmark (optional)</label>
+            <input id="landmark" type="text"
+              class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 dark:bg-gray-700 dark:border-gray-600 bg-white">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label class="block mb-1 font-medium">District / Town</label>
+            <input id="district" type="text" readonly
+              class="w-full px-3 py-2 border rounded-lg bg-gray-100 dark:bg-gray-700 dark:border-gray-600 bg-white">
+          </div>
+          <div>
+            <label class="block mb-1 font-medium">State</label>
+            <input id="state" type="text" required
+              class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 dark:bg-gray-700 dark:border-gray-600 bg-white">
+          </div>
+        </div>
+
+        <div>
+          <label class="block mb-1 font-medium">Country</label>
+          <input id="country" type="text" required value="India"
+            class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 dark:bg-gray-700 dark:border-gray-600 bg-white">
+        </div>
+      </form>
+
+      <!-- Buttons -->
+      <button id="pay-btn"
+        class="w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-lg transition">
+        Confirm Order
       </button>
-
-      <button id="back-btn" class="w-full mt-4 py-3 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition">
+      <button id="back-btn"
+        class="w-full mt-4 py-3 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition">
         ← Back to Shop
       </button>
     </div>
+  </main>
+
+  <!-- Confirm Order Modal -->
+  <div id="confirm-modal" class="fixed inset-0 hidden bg-black/60 flex items-center justify-center z-50">
+    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-2xl w-full max-w-lg p-6 relative">
+      <h2 class="text-2xl font-bold mb-4 text-center">Confirm Your Order</h2>
+      <div id="order-summary" class="space-y-3 max-h-72 overflow-y-auto mb-4"></div>
+
+      <div class="border-t border-gray-300 dark:border-gray-600 mt-3 pt-3">
+        <h3 class="font-semibold mb-2">Delivery Address</h3>
+        <p id="confirm-address" class="text-sm text-gray-700 dark:text-gray-300"></p>
+      </div>
+
+      <div class="text-right font-semibold text-lg mt-4">
+        Total: <span id="confirm-total" class="text-indigo-600"></span>
+      </div>
+
+      <div class="mt-6 flex justify-end space-x-3">
+        <button id="cancel-btn" class="px-4 py-2 bg-gray-300 dark:bg-gray-700 rounded-lg hover:bg-gray-400">Cancel</button>
+        <button id="confirm-pay-btn" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg">Proceed to Pay</button>
+      </div>
+    </div>
   </div>
 
-  <script>
-    // Load the total from localStorage
-    const total = localStorage.getItem('checkoutTotal') || 0;
-    document.getElementById('total-amount').textContent = '₹' + total;
+  <div id="toast" class="fixed top-4 right-4 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 shadow-lg px-4 py-3 rounded-lg hidden"></div>
 
-    // Redirect to Google Pay (UPI intent)
+  <script>
+    const toast = document.getElementById('toast');
+    function showToast(msg) {
+      toast.textContent = msg;
+      toast.classList.remove('hidden');
+      setTimeout(() => toast.classList.add('hidden'), 2500);
+    }
+
+    const cart = JSON.parse(localStorage.getItem('cart')) || [];
+    const subtotal = cart.reduce((s, i) => s + i.price * i.quantity, 0);
+    const discount = Math.round(subtotal * 0.1);
+    const total = subtotal - discount;
+    localStorage.setItem('checkoutTotal', total);
+
+    const cartSummary = document.getElementById('cart-summary');
+    cartSummary.innerHTML = cart.length === 0 ? 
+      '<p class="text-center text-gray-500">Your cart is empty.</p>' :
+      cart.map(i => `
+        <div class="flex items-center justify-between py-4">
+          <div class="flex items-center space-x-4">
+            <img src="${i.image}" class="w-16 h-16 rounded-md object-cover shadow">
+            <div>
+              <h3 class="font-semibold">${i.name}</h3>
+              <p class="text-sm text-gray-500">Qty: ${i.quantity}</p>
+            </div>
+          </div>
+          <div class="text-right">
+            <p class="font-semibold">₹${i.price}</p>
+            <p class="text-sm text-green-600">Discount: ₹${Math.round(i.price * 0.1)}</p>
+          </div>
+        </div>`).join('');
+    document.getElementById('subtotal').textContent = '₹' + subtotal;
+    document.getElementById('discount').textContent = '-₹' + discount;
+    document.getElementById('total').textContent = '₹' + total;
+
+    // Autofill address
+    const pin = document.getElementById('pincode');
+    pin.addEventListener('blur', async () => {
+      const code = pin.value.trim();
+      if (!code || code.length < 6) return;
+      try {
+        const res = await fetch(`https://api.postalpincode.in/pincode/${code}`);
+        const data = await res.json();
+        if (data[0].Status === "Success") {
+          const o = data[0].PostOffice[0];
+          document.getElementById('district').value = o.District;
+          document.getElementById('state').value = o.State;
+          document.getElementById('country').value = o.Country;
+          showToast(`📍 Found: ${o.District}, ${o.State}`);
+        } else showToast("⚠️ Invalid Pincode.");
+      } catch { showToast("❌ Location fetch failed."); }
+    });
+
+    // Confirm order popup
+    const modal = document.getElementById('confirm-modal');
+    const confirmAddress = document.getElementById('confirm-address');
+    const confirmTotal = document.getElementById('confirm-total');
+    const orderSummary = document.getElementById('order-summary');
+
     document.getElementById('pay-btn').addEventListener('click', () => {
-      const upiId = 'sidharthvnair85-2@okicici'; // 🧾 replace with your actual UPI ID
-      const name = encodeURIComponent('Fashion Store');
-      const amount = encodeURIComponent(total);
-      const note = encodeURIComponent('Order Payment');
-      const url = `upi://pay?pa=${upiId}&pn=${name}&am=${amount}&cu=INR&tn=${note}`;
+      const address = document.getElementById('address').value.trim();
+      const pincode = document.getElementById('pincode').value.trim();
+      const landmark = document.getElementById('landmark').value.trim();
+      const district = document.getElementById('district').value.trim();
+      const state = document.getElementById('state').value.trim();
+      const country = document.getElementById('country').value.trim();
+      if (!address || !pincode || !state || !country) return alert('Please fill in all required address fields.');
+
+      confirmAddress.innerHTML = `${address}, ${landmark ? landmark + ',' : ''} ${district}, ${state}, ${country} - ${pincode}`;
+      confirmTotal.textContent = '₹' + total;
+      orderSummary.innerHTML = cart.map(i => `
+        <div class="flex justify-between items-center">
+          <div class="flex items-center space-x-3">
+            <img src="${i.image}" class="w-12 h-12 rounded object-cover">
+            <span>${i.name} (x${i.quantity})</span>
+          </div>
+          <span>₹${i.price}</span>
+        </div>`).join('');
+      modal.classList.remove('hidden');
+    });
+
+    document.getElementById('cancel-btn').addEventListener('click', () => modal.classList.add('hidden'));
+
+    document.getElementById('confirm-pay-btn').addEventListener('click', () => {
+      modal.classList.add('hidden');
+      const upiId = 'merchant@okaxis'; // Replace with your UPI
+      const url = `upi://pay?pa=${upiId}&pn=Fashion%20Store&am=${encodeURIComponent(total)}&cu=INR&tn=Order%20Payment`;
       window.location.href = url;
     });
 
-    // Back to home
-    document.getElementById('back-btn').addEventListener('click', () => {
-      window.location.href = 'index.html';
-    });
+    document.getElementById('back-btn').addEventListener('click', () => window.location.href = 'index.html');
   </script>
 </body>
 </html>
