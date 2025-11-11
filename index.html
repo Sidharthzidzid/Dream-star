@@ -1,0 +1,1091 @@
+<!doctype html>
+<html lang="en" class="light">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>FASHION - Modern Apparel (Vibrant + Modal + Scroll Anim)</title>
+
+  <!-- Tailwind CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Inter font -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Animate.css for vibrant animations -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: { sans: ['Inter','sans-serif'] }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    /* scrollbar */
+    ::-webkit-scrollbar { width: 8px; }
+    ::-webkit-scrollbar-track { background: #f1f1f1; }
+    ::-webkit-scrollbar-thumb { background: #888; border-radius: 4px; }
+    .dark ::-webkit-scrollbar-track { background: #2d3748; }
+    .dark ::-webkit-scrollbar-thumb { background: #a0aec0; }
+
+    /* toast */
+    #toast { position: fixed; top: 20px; right: 20px; z-index: 99999; pointer-events: none; }
+
+    .no-scroll { overflow: hidden !important; }
+
+    /* modal images */
+    .modal-thumb { cursor: pointer; border: 2px solid transparent; }
+    .modal-thumb.active { border-color: #1f2937; }
+
+    /* product card animation helper */
+    [data-animate] { opacity: 0; } /* start hidden; revealed by JS */
+
+    /* heart overlay */
+    .heart-overlay {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      z-index: 20;
+      background: rgba(255,255,255,0.85);
+      border-radius: 9999px;
+      width: 36px;
+      height: 36px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+    }
+    .product-image-wrap { position: relative; overflow: hidden; }
+
+    /* mobile 2-column fallback fix */
+    @media (max-width: 420px) {
+      /* keep two columns even on very small screens if requested — adjust if too cramped */
+    }
+  </style>
+</head>
+<body class="bg-white text-gray-800 dark:bg-gray-900 dark:text-gray-200 antialiased">
+
+  <!-- TOAST -->
+  <div id="toast" aria-live="polite"></div>
+
+  <!-- Header -->
+  <header id="top" class="bg-white dark:bg-gray-800 shadow sticky top-0 z-50">
+    <nav class="container mx-auto px-6 py-4 flex justify-between items-center">
+      <a href="#top" data-scroll="top" class="text-2xl font-bold text-gray-900 dark:text-white">FASHION</a>
+
+      <!-- Desktop nav -->
+      <ul class="hidden md:flex space-x-8 text-gray-600 dark:text-gray-300">
+        <li><a href="#top" data-scroll="top" class="nav-link hover:text-gray-900 dark:hover:text-white transition">Home</a></li>
+        <li><a href="#product-grid-section" data-scroll="product-grid-section" class="nav-link hover:text-gray-900 dark:hover:text-white transition">Shop</a></li>
+        <li><a href="#about-section" data-scroll="about-section" class="nav-link hover:text-gray-900 dark:hover:text-white transition">About</a></li>
+        <li><a href="#contact-section" data-scroll="contact-section" class="nav-link hover:text-gray-900 dark:hover:text-white transition">Contact</a></li>
+      </ul>
+
+      <div class="flex items-center space-x-4">
+      <!-- 🔍 Search -->
+<div class="relative flex items-center">
+  <!-- Mobile Search Icon -->
+  <button id="mobile-search-toggle"
+    class="flex md:hidden items-center text-gray-700 dark:text-gray-200 p-2 focus:outline-none">
+    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+        d="M21 21l-4.35-4.35M10 18a8 8 0 100-16 8 8 0 000 16z" />
+    </svg>
+  </button>
+
+  <!-- Search Bar -->
+<!-- Search Bar -->
+<div id="search-container"
+  class="hidden md:flex absolute md:static top-12 right-10 md:left-0 transform -translate-x-1/2 md:translate-x-0 w-[200%] md:w-auto px-4 py-2 bg-gray-100 dark:bg-gray-700 rounded-lg shadow-lg md:shadow-none transition-all duration-300 ease-in-out z-50">
+  <div class="flex items-center w-full">
+    <svg class="w-5 h-5 text-gray-500 dark:text-gray-300 mr-2" fill="none" stroke="currentColor"
+      viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+        d="M21 21l-4.35-4.35M10 18a8 8 0 100-16 8 8 0 000 16z" />
+    </svg>
+    <input id="header-search" type="search" placeholder="Search products, brands..."
+      class="bg-transparent focus:outline-none text-sm w-full md:w-64 text-gray-700 dark:text-gray-200" />
+    <button id="clear-search"
+      class="ml-2 text-xs px-2 py-1 bg-gray-200 dark:bg-gray-600 rounded text-gray-700 dark:text-gray-200 hidden">Clear</button>
+  </div>
+</div>
+
+
+        <button id="theme-toggle" class="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition" aria-label="Toggle theme">
+          <svg id="theme-toggle-light-icon" class="w-6 h-6 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m8.66-8.66l-.707.707M4.04 4.04l-.707.707M21 12h-1M4 12H3m16.66 8.66l-.707-.707M4.04 19.96l-.707-.707M12 20.25a8.25 8.25 0 100-16.5 8.25 8.25 0 000 16.5z"></path></svg>
+          <svg id="theme-toggle-dark-icon" class="w-6 h-6 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path></svg>
+        </button>
+
+        <button id="wishlist-button" class="relative text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition" aria-label="Open wishlist">
+          <svg id="wishlist-svg" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path id="wishlist-svg-path" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 016.364 0L12 7.636l1.318-1.318a4.5 4.5 0 116.364 6.364L12 21.364 4.318 12.682a4.5 4.5 0 010-6.364z"></path></svg>
+          <span id="wishlist-count" class="absolute -top-2 -right-2 bg-pink-600 text-white text-xs w-5 h-5 rounded-full flex items-center justify-center">0</span>
+        </button>
+
+        <button id="cart-button" class="relative text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition" aria-label="Open cart">
+          <svg id="cart-svg" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path></svg>
+          <span id="cart-count" class="absolute -top-2 -right-2 bg-gray-900 dark:bg-white dark:text-gray-900 text-white text-xs w-5 h-5 rounded-full flex items-center justify-center">0</span>
+        </button>
+
+        <button id="mobile-menu-button" class="md:hidden text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition" aria-label="Open menu">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path></svg>
+        </button>
+      </div>
+    </nav>
+
+    <!-- Mobile menu -->
+    <div id="mobile-menu" class="hidden md:hidden px-6 pb-4 bg-white dark:bg-gray-800">
+      <ul class="flex flex-col space-y-4 text-gray-600 dark:text-gray-300">
+        <li><a href="#top" data-scroll="top" class="mobile-nav-link hover:text-gray-900 dark:hover:text-white transition">Home</a></li>
+        <li><a href="#product-grid-section" data-scroll="product-grid-section" class="mobile-nav-link hover:text-gray-900 dark:hover:text-white transition">Shop</a></li>
+        <li><a href="#about-section" data-scroll="about-section" class="mobile-nav-link hover:text-gray-900 dark:hover:text-white transition">About</a></li>
+        <li><a href="#contact-section" data-scroll="contact-section" class="mobile-nav-link hover:text-gray-900 dark:hover:text-white transition">Contact</a></li>
+      </ul>
+    </div>
+  </header>
+
+  <!-- MAIN -->
+  <main>
+    <!-- Hero -->
+ <section class="relative w-full overflow-hidden">
+  <img
+    src="https://www.manyavar.com/on/demandware.static/-/Library-Sites-ManyavarSharedLibrary/default/dw76aefa69/Blogs-Images/Zari%20Sarees%20for%20Weddings%20D.jpg"
+    alt="Hero"
+    class="w-full h-auto block"
+  />
+  <div class="absolute inset-0 bg-black/30"></div>
+
+  <div class="absolute inset-0 flex flex-col justify-center items-start px-6 container mx-auto z-10">
+   <div class="max-w-lg text-white animate__animated animate__jackInTheBox">
+  <h1 class="text-xl sm:text-3xl md:text-5xl lg:text-6xl font-bold mb-6 leading-tight">
+    Discover Our New Collection for 2025
+  </h1>
+  <a
+    href="#product-grid-section"
+    class="inline-block px-4 py-1.5 sm:px-5 sm:py-2 md:px-6 md:py-2.5 text-xs sm:text-sm md:text-base bg-white text-gray-900 font-semibold rounded-md shadow-md hover:scale-105 transform transition animate__animated animate__pulse animate__infinite"
+    style="--animate-duration: 2s;"
+  >
+    SHOP NOW
+  </a>
+</div>
+  </div>
+</section>
+
+
+
+    <!-- Product Grid: mobile 2-per-row -->
+    <section id="product-grid-section" class="py-16 md:py-24 bg-gray-50 dark:bg-gray-800">
+      <div class="container mx-auto px-6">
+        <h2 class="text-3xl font-bold text-center text-gray-900 dark:text-white mb-12" data-animate="fadeInUp">The Must-Haves For Your Wardrobe</h2>
+
+        <!-- Grid: default 2 columns on small screens, 4 on large -->
+        <div id="product-grid" class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+          <!-- cards injected by JS -->
+        </div>
+      </div>
+    </section>
+
+    <!-- About/Feature -->
+    <section id="about-section" class="bg-white dark:bg-gray-900 py-16 md:py-24">
+      <div class="container mx-auto px-6 grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+        <div class="max-w-lg" data-animate="fadeInLeft">
+          <h2 class="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-6">High-Quality, Sustainable Fashion</h2>
+          <p class="text-gray-600 dark:text-gray-300 mb-8 leading-relaxed">We believe fashion should be more than functional. It's an investment in your style and a part of your daily life. We are committed to sustainable sourcing and craftsmanship.</p>
+          <a href="#about-section" id="read-more-btn" class="px-8 py-3 bg-gray-900 dark:bg-gray-100 dark:text-gray-900 text-white font-semibold rounded-lg shadow-md hover:scale-105 transform transition">READ MORE</a>
+        </div>
+        <div class="order-first md:order-last" data-animate="fadeInRight">
+          <img src="https://www.sacredweaves.com/cdn/shop/articles/WhatsApp_Image_2020-11-23_at_1.04.12_AM_1000x.jpg?v=1606074563" alt="Stylish Apparel" class="rounded-lg shadow-xl w-full h-auto object-cover">
+        </div>
+      </div>
+    </section>
+
+    <!-- Newsletter / contact -->
+    <section id="contact-section" class="bg-gray-800 dark:bg-gray-700 py-16">
+      <div class="container mx-auto px-6 flex flex-col md:flex-row justify-between items-center">
+        <h3 class="text-2xl font-semibold text-white mb-4 md:mb-0 text-center md:text-left" data-animate="fadeInUp">Sign up for our newsletter</h3>
+        <form id="subscribe-form" class="flex w-full max-w-md" novalidate>
+          <input id="subscribe-email" type="email" placeholder="Enter your email" class="px-5 py-3 rounded-l-lg border-0 focus:ring-2 focus:ring-gray-500 focus:outline-none w-full text-gray-900" required>
+          <button type="submit" class="px-6 py-3 bg-gray-900 dark:bg-gray-900 text-white font-semibold rounded-r-lg hover:bg-gray-700 transition">Subscribe</button>
+        </form>
+      </div>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer class="bg-gray-900 text-gray-400 py-16 md:py-24">
+    <div class="container mx-auto px-6 grid grid-cols-2 md:grid-cols-4 gap-8">
+      <div>
+        <h4 class="font-semibold text-white mb-4 uppercase">About</h4>
+        <ul class="space-y-3">
+          <li><a href="#about-section" data-scroll="about-section" class="hover:text-white transition">Our Story</a></li>
+          <li><a href="#" class="hover:text-white transition">Careers</a></li>
+          <li><a href="#" class="hover:text-white transition">Press</a></li>
+          <li><a href="#" class="hover:text-white transition">Sustainability</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4 class="font-semibold text-white mb-4 uppercase">Shop</h4>
+        <ul class="space-y-3">
+          <li><a href="#product-grid-section" data-scroll="product-grid-section" class="hover:text-white transition">New Arrivals</a></li>
+          <li><a href="#" class="hover:text-white transition">Men</a></li>
+          <li><a href="#" class="hover:text-white transition">Women</a></li>
+          <li><a href="#" class="hover:text-white transition">Accessories</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4 class="font-semibold text-white mb-4 uppercase">Support</h4>
+        <ul class="space-y-3">
+          <li><a href="#contact-section" data-scroll="contact-section" class="hover:text-white transition">Contact Us</a></li>
+          <li><a href="#" class="hover:text-white transition">FAQ</a></li>
+          <li><a href="#" class="hover:text-white transition">Shipping & Returns</a></li>
+          <li><a href="#" class="hover:text-white transition">Track Order</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4 class="font-semibold text-white mb-4 uppercase">Follow Us</h4>
+        <div class="flex space-x-4">
+          <a href="#" class="text-gray-400 hover:text-white transition">FB</a>
+          <a href="#" class="text-gray-400 hover:text-white transition">IG</a>
+          <a href="#" class="text-gray-400 hover:text-white transition">TW</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="container mx-auto mt-12 pt-8 border-t border-gray-700 text-center text-sm">
+      <p>&copy; 2025 FASHION. All rights reserved. Built with Tailwind CSS.</p>
+    </div>
+  </footer>
+
+  <!-- Cart overlay & panel -->
+  <div id="cart-overlay" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden"></div>
+  <aside id="cart-panel" class="fixed top-0 right-0 h-full w-full max-w-md bg-white dark:bg-gray-800 shadow-xl z-[60] transform translate-x-full" aria-hidden="true">
+    <div class="flex flex-col h-full">
+      <div class="flex justify-between items-center p-5 border-b border-gray-200 dark:border-gray-700">
+        <h2 class="text-xl font-semibold text-gray-900 dark:text-white">Your Cart</h2>
+        <button id="close-cart-button" class="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white" aria-label="Close cart">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+        </button>
+      </div>
+
+      <div id="cart-items" class="flex-grow p-5 overflow-y-auto">
+        <!-- Injected -->
+      </div>
+
+      <div class="p-5 border-t border-gray-200 dark:border-gray-700">
+        <div class="flex justify-between items-center mb-4">
+          <span class="text-lg font-semibold text-gray-900 dark:text-white">Subtotal:</span>
+          <span id="cart-subtotal" class="text-lg font-bold text-gray-900 dark:text-white">₹0</span>
+        </div>
+        <button id="checkout-button" class="w-full px-6 py-3 bg-gray-900 dark:bg-gray-100 dark:text-gray-900 text-white font-semibold rounded-lg shadow-md hover:bg-gray-700 dark:hover:bg-gray-300 transition">Proceed to Checkout</button>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Wishlist overlay & panel (like cart) -->
+  <div id="wishlist-overlay" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden"></div>
+  <aside id="wishlist-panel" class="fixed top-0 right-0 h-full w-full max-w-md bg-white dark:bg-gray-800 shadow-xl z-[60] transform translate-x-full" aria-hidden="true">
+    <div class="flex flex-col h-full">
+      <div class="flex justify-between items-center p-5 border-b border-gray-200 dark:border-gray-700">
+        <h2 class="text-xl font-semibold text-gray-900 dark:text-white">Your Wishlist</h2>
+        <button id="close-wishlist-button" class="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white" aria-label="Close wishlist">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+        </button>
+      </div>
+
+      <div id="wishlist-items" class="flex-grow p-5 overflow-y-auto">
+        <!-- Injected -->
+      </div>
+
+      <div class="p-5 border-t border-gray-200 dark:border-gray-700">
+        <div class="flex justify-between items-center mb-4">
+          <span class="text-sm text-gray-600 dark:text-gray-300">Items saved in Wishlist are stored locally in your browser.</span>
+        </div>
+        <button id="wishlist-add-all-to-cart" class="w-full px-6 py-3 bg-indigo-600 text-white font-semibold rounded-lg shadow-md hover:bg-indigo-700 transition">Move all to Cart</button>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Product Detail Modal -->
+  <div id="product-modal-overlay" class="fixed inset-0 bg-black bg-opacity-60 z-[80] hidden"></div>
+  <div id="product-modal" class="fixed inset-0 z-[90] flex items-center justify-center p-4 hidden" aria-modal="true" role="dialog" aria-hidden="true">
+    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-2xl max-w-4xl w-full overflow-hidden animate__animated">
+      <div class="grid grid-cols-1 lg:grid-cols-2">
+        <!-- Left: large image + controls -->
+        <div class="relative bg-gray-100 dark:bg-gray-900 p-4 flex items-center justify-center">
+          <button id="modal-prev" class="absolute left-2 top-1/2 -translate-y-1/2 bg-white dark:bg-gray-800 rounded-full p-2 shadow hover:scale-105 transition z-20" aria-label="Prev image">&larr;</button>
+          <img id="modal-main-image" src="" alt="Product large" class="max-h-[60vh] w-full object-contain rounded-lg">
+          <button id="modal-next" class="absolute right-2 top-1/2 -translate-y-1/2 bg-white dark:bg-gray-800 rounded-full p-2 shadow hover:scale-105 transition z-20" aria-label="Next image">&rarr;</button>
+        </div>
+
+        <!-- Right: details -->
+        <div class="p-6">
+          <div class="flex justify-between items-start">
+            <div>
+              <h3 id="modal-name" class="text-2xl font-bold text-gray-900 dark:text-white"></h3>
+              <p id="modal-brand" class="text-sm text-gray-500 dark:text-gray-400"></p>
+            </div>
+            <button id="modal-close" class="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white" aria-label="Close modal">&times;</button>
+          </div>
+
+          <p id="modal-price" class="text-2xl font-bold text-gray-900 dark:text-white mt-4"></p>
+          <p id="modal-desc" class="text-gray-600 dark:text-gray-300 mt-4 leading-relaxed"></p>
+
+          <!-- thumbnails -->
+          <div id="modal-thumbs" class="flex gap-2 mt-5 overflow-x-auto py-2"></div>
+
+          <div class="mt-6 flex items-center gap-3">
+            <input id="modal-qty" type="number" value="1" min="1" class="w-20 px-3 py-2 border rounded-md text-center bg-white text-gray-900">
+            <button id="modal-add-cart" class="px-5 py-3 bg-indigo-600 text-white font-semibold rounded-lg shadow hover:scale-105 transform transition">Add to Cart</button>
+            <button id="modal-wish" class="px-4 py-2 border rounded-md hover:scale-105 transition">Wishlist</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  /* -------------------------
+     Products (demo)
+  ------------------------- */
+
+const products = [
+  {
+    id: 1,
+    name: 'Banarasi Silk Saree',
+    brand: 'Sacred Weaves',
+    price: 8499,
+    desc: 'Elegant handwoven Banarasi silk saree perfect for weddings and festive occasions.',
+    images: [
+      'img1.jpg',
+      'img1.2.jpg'
+    ]
+  },
+  {
+    id: 2,
+    name: 'Designer Kurta Set',
+    brand: 'Manyavar',
+    price: 5999,
+    desc: 'Classic cream designer kurta with churidar — perfect for weddings and festive wear.',
+    images: [
+      'img 2.jpg',
+      'img2.1.jpg'
+    ]
+  },
+  {
+    id: 3,
+    name: 'Handcrafted Leather Jacket',
+    brand: 'Urban Edge',
+    price: 7499,
+    desc: 'Premium handcrafted leather jacket designed for comfort and durability.',
+    images: [
+      'img3.jpg',
+        'img3.1.jpg'
+    ]
+  },
+  {
+    id: 4,
+    name: 'Slim Fit Denim Jeans',
+    brand: 'Levi’s',
+    price: 3199,
+    desc: 'Slim-fit stretch denim jeans providing comfort and style for everyday wear.',
+    images: [
+      'img4.jpg',
+        'img4.1.jpg'
+    ]
+  },
+  {
+    id: 5,
+    name: 'Cotton Summer Dress',
+    brand: 'Zara',
+    price: 2599,
+    desc: 'Lightweight cotton floral dress ideal for summer outings and casual events.',
+    images: [
+      'img5.jpg',
+        'img5.1.jpg',
+        'img5.2.jpg'
+    ]
+  },
+  {
+    id: 6,
+    name: 'Men’s Formal Blazer',
+    brand: 'Van Heusen',
+    price: 4999,
+    desc: 'Sophisticated navy blue formal blazer with a premium finish.',
+    images: [
+      'img6.jpg',
+        'img6.1.jpg'      
+    ]
+  },
+  {
+    id: 7,
+    name: 'Leather Handbag',
+    brand: 'Caprese',
+    price: 3799,
+    desc: 'Elegant women’s leather handbag with gold-tone hardware and spacious design.',
+    images: [
+      'https://cdn.pixabay.com/photo/2016/11/29/09/15/bag-1868751_1280.jpg'
+    ]
+  },
+  {
+    id: 8,
+    name: 'Luxury Wristwatch',
+    brand: 'Titan Edge',
+    price: 9999,
+    desc: 'Sleek stainless steel wristwatch with minimal dial and genuine leather strap.',
+    images: [
+      'https://cdn.pixabay.com/photo/2016/11/29/06/18/adult-1868752_1280.jpg'
+    ]
+  }
+];
+
+  /* -------------------------
+     State
+  ------------------------- */
+  let cart = JSON.parse(localStorage.getItem('cart')) || [];
+  let wishlist = JSON.parse(localStorage.getItem('wishlist')) || []; // store ids
+  let currentFilter = '';
+
+  /* -------------------------
+     DOM refs
+  ------------------------- */
+  const productGrid = document.getElementById('product-grid');
+  const cartButton = document.getElementById('cart-button');
+  const cartOverlay = document.getElementById('cart-overlay');
+  const cartPanel = document.getElementById('cart-panel');
+  const closeCartButton = document.getElementById('close-cart-button');
+  const cartItemsContainer = document.getElementById('cart-items');
+  const cartCount = document.getElementById('cart-count');
+  const cartSubtotal = document.getElementById('cart-subtotal');
+  const toastRoot = document.getElementById('toast');
+  const mobileMenuButton = document.getElementById('mobile-menu-button');
+  const mobileMenu = document.getElementById('mobile-menu');
+  const themeToggle = document.getElementById('theme-toggle');
+  const lightIcon = document.getElementById('theme-toggle-light-icon');
+  const darkIcon = document.getElementById('theme-toggle-dark-icon');
+  const subscribeForm = document.getElementById('subscribe-form');
+  const readMoreBtn = document.getElementById('read-more-btn');
+  const checkoutButton = document.getElementById('checkout-button');
+
+  /* Wishlist refs */
+  const wishlistButton = document.getElementById('wishlist-button');
+  const wishlistOverlay = document.getElementById('wishlist-overlay');
+  const wishlistPanel = document.getElementById('wishlist-panel');
+  const wishlistItemsContainer = document.getElementById('wishlist-items');
+  const wishlistCount = document.getElementById('wishlist-count');
+  const wishlistAddAllToCart = document.getElementById('wishlist-add-all-to-cart');
+  const closeWishlistButton = document.getElementById('close-wishlist-button');
+
+  /* Search refs */
+  const headerSearch = document.getElementById('header-search');
+  const clearSearchBtn = document.getElementById('clear-search');
+
+  /* Modal refs */
+  const modalOverlay = document.getElementById('product-modal-overlay');
+  const modal = document.getElementById('product-modal');
+  const modalMainImage = document.getElementById('modal-main-image');
+  const modalName = document.getElementById('modal-name');
+  const modalBrand = document.getElementById('modal-brand');
+  const modalPrice = document.getElementById('modal-price');
+  const modalDesc = document.getElementById('modal-desc');
+  const modalThumbs = document.getElementById('modal-thumbs');
+  const modalClose = document.getElementById('modal-close');
+  const modalPrev = document.getElementById('modal-prev');
+  const modalNext = document.getElementById('modal-next');
+  const modalAddCart = document.getElementById('modal-add-cart');
+  const modalQty = document.getElementById('modal-qty');
+  const modalWish = document.getElementById('modal-wish');
+
+  let modalImages = []; // current product images
+  let modalIndex = 0;
+  let modalProductId = null;
+
+  /* -------------------------
+     Theme handling
+  ------------------------- */
+  const updateThemeIcons = (isDark) => {
+    if (isDark) { lightIcon.classList.remove('hidden'); darkIcon.classList.add('hidden'); }
+    else { lightIcon.classList.add('hidden'); darkIcon.classList.remove('hidden'); }
+  };
+  const toggleTheme = () => {
+    const isDark = document.documentElement.classList.toggle('dark');
+    localStorage.setItem('theme', isDark ? 'dark' : 'light');
+    updateThemeIcons(isDark);
+  };
+  const savedTheme = localStorage.getItem('theme');
+  const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+  if (savedTheme === 'dark' || (!savedTheme && prefersDark)) {
+    document.documentElement.classList.add('dark');
+    updateThemeIcons(true);
+  } else updateThemeIcons(false);
+  themeToggle.addEventListener('click', toggleTheme);
+
+  /* -------------------------
+     Helper: toast
+  ------------------------- */
+  function showToast(msg, duration = 1800) {
+    const el = document.createElement('div');
+    el.className = 'pointer-events-auto bg-white dark:bg-gray-800 text-gray-900 dark:text-white px-4 py-3 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 animate__animated animate__fadeInDown';
+    el.style.minWidth = '180px';
+    el.innerHTML = `<div class="font-semibold">${msg}</div>`;
+    toastRoot.appendChild(el);
+    setTimeout(() => {
+      el.classList.remove('animate__fadeInDown');
+      el.classList.add('animate__fadeOutUp');
+      el.addEventListener('animationend', () => el.remove(), { once:true });
+    }, duration);
+  }
+
+ function buildDemoImages(p) {
+  if (p.images && p.images.length > 0) return p.images;
+  const shades = ['a3a3a3','bdb2ff','ffd366','c7f9cc','f6c6d6'];
+  return [0,1,2,3].map(i => {
+    const bg = shades[i % shades.length];
+    const fg = p.textColor || '475569';
+    const text = encodeURIComponent(`${p.name} ${i+1}`);
+    return `https://placehold.co/900x900/${bg}/${fg}?text=${text}`;
+  });
+}
+
+  /* -------------------------
+     Render product cards (with heart overlay)
+  ------------------------- */
+  function renderProducts() {
+    const filtered = products.filter(p => {
+      if (!currentFilter) return true;
+      const q = currentFilter.toLowerCase();
+      return p.name.toLowerCase().includes(q) || p.brand.toLowerCase().includes(q);
+    });
+
+    productGrid.innerHTML = filtered.map((p, idx) => {
+      const imgs = buildDemoImages(p);
+      const inWish = wishlist.includes(p.id);
+      return `
+      <article class="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden group transform transition hover:-translate-y-1 cursor-pointer" data-animate="fadeInUp" data-id="${p.id}">
+        <div class="product-image-wrap">
+          <button class="heart-overlay wishlist-toggle-btn" data-id="${p.id}" aria-label="Toggle wishlist" title="${inWish ? 'Remove from wishlist' : 'Add to wishlist'}">
+            ${inWish ? '<svg class="w-5 h-5 text-pink-600" fill="currentColor" viewBox="0 0 20 20"><path d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 18.657 3.172 10.828a4 4 0 010-5.656z"/></svg>' : '<svg class="w-5 h-5 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 000-7.78z"/></svg>'}
+          </button>
+          <button class="w-full text-left product-open block" data-id="${p.id}" style="display:block;">
+            <img src="${imgs[0]}" alt="${p.name}" class="w-full h-44 object-cover group-hover:opacity-90" />
+            <div class="p-4">
+              <h3 class="font-semibold text-lg mb-1 text-gray-900 dark:text-white">${p.name}</h3>
+              <p class="text-sm text-gray-500 dark:text-gray-400 mb-2">by ${p.brand}</p>
+              <div class="flex items-center justify-between">
+                <div class="font-bold text-xl text-gray-900 dark:text-white">₹${p.price}</div>
+                <button class="btn-add inline-block px-3 py-1 bg-indigo-600 text-white rounded-md shadow hover:scale-105 transform transition add-to-cart-button" data-id="${p.id}">Add</button>
+              </div>
+            </div>
+          </button>
+        </div>
+      </article>
+      `;
+    }).join('');
+
+    // attach listeners after injection
+    document.querySelectorAll('.product-open').forEach(el => el.addEventListener('click', onProductOpen));
+    document.querySelectorAll('.add-to-cart-button').forEach(b => {
+      b.addEventListener('click', (e)=> {
+        e.stopPropagation();
+        const id = Number(b.getAttribute('data-id'));
+        b.classList.add('animate__animated','animate__heartBeat');
+        b.addEventListener('animationend',()=>b.classList.remove('animate__animated','animate__heartBeat'),{once:true});
+        addToCart(id);
+      });
+    });
+    document.querySelectorAll('.wishlist-toggle-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const id = Number(btn.getAttribute('data-id'));
+        toggleWishlist(id);
+      });
+    });
+
+    setupScrollAnimations();
+    updateWishlistIcons();
+  }
+
+  /* -------------------------
+     Scroll-triggered animations (IntersectionObserver)
+  ------------------------- */
+  function setupScrollAnimations() {
+    const items = document.querySelectorAll('[data-animate]');
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          const el = entry.target;
+          const anim = el.getAttribute('data-animate') || 'fadeInUp';
+          el.classList.add('animate__animated','animate__' + anim);
+          el.style.opacity = 1;
+          el.addEventListener('animationend', () => {
+            // keep for effect
+          }, { once:true });
+          observer.unobserve(el);
+        }
+      });
+    }, { threshold: 0.15 });
+    items.forEach(i => observer.observe(i));
+  }
+
+  /* -------------------------
+     CART: save/update UI
+  ------------------------- */
+  function saveCart() {
+    localStorage.setItem('cart', JSON.stringify(cart));
+    updateCartUI();
+  }
+
+  function updateCartUI() {
+    if (cart.length === 0) {
+      cartItemsContainer.innerHTML = '<p class="text-gray-500 dark:text-gray-400">Your cart is empty.</p>';
+    } else {
+      cartItemsContainer.innerHTML = cart.map(item => `
+        <div class="flex items-center space-x-4 mb-4" data-id="${item.id}">
+          <img src="${item.image}" alt="${item.name}" class="w-16 h-16 rounded-lg object-cover">
+          <div class="flex-grow">
+            <h4 class="font-semibold text-gray-900 dark:text-white">${item.name}</h4>
+            <p class="text-sm text-gray-500 dark:text-gray-400">₹${item.price}</p>
+          </div>
+          <div class="flex flex-col items-end">
+            <input type="number" value="${item.quantity}" min="1" class="cart-item-quantity w-16 text-center border rounded-md dark:bg-gray-700 dark:border-gray-600 focus:outline-none" />
+            <button class="cart-item-remove text-sm text-red-500 hover:text-red-700 dark:hover:text-red-300 mt-1">Remove</button>
+          </div>
+        </div>
+      `).join('');
+    }
+    const subtotal = cart.reduce((s,it)=> s + (it.price * it.quantity), 0);
+    cartSubtotal.textContent = `₹${subtotal}`;
+    const totalItems = cart.reduce((s,it)=> s + it.quantity, 0);
+    cartCount.textContent = totalItems;
+    cartCount.classList.toggle('hidden', totalItems === 0);
+  }
+
+  function addToCart(productId, qty = 1, fromModal=false) {
+    const p = products.find(x => x.id === productId);
+    if (!p) return;
+    const existing = cart.find(i => i.id === productId);
+    const imageUrl = buildDemoImages(p)[0];
+    if (existing) existing.quantity += Number(qty);
+    else cart.push({ id: p.id, name: p.name, price: p.price, quantity: Number(qty), image: imageUrl });
+    saveCart();
+    const cartSvg = document.getElementById('cart-svg');
+    cartSvg.classList.add('animate__animated','animate__bounce');
+    cartSvg.addEventListener('animationend', ()=> cartSvg.classList.remove('animate__animated','animate__bounce'), {once:true});
+    showToast('Added to cart');
+    if (!fromModal) openCart();
+  }
+
+  /* -------------------------
+     Wishlist: save/update UI
+  ------------------------- */
+  function saveWishlist() {
+    localStorage.setItem('wishlist', JSON.stringify(wishlist));
+    updateWishlistUI();
+  }
+
+  function updateWishlistUI() {
+    // render items
+    if (wishlist.length === 0) {
+      wishlistItemsContainer.innerHTML = '<p class="text-gray-500 dark:text-gray-400">Your wishlist is empty. Add favorites by tapping the heart.</p>';
+    } else {
+      const items = wishlist.map(id => products.find(p => p.id === id)).filter(Boolean);
+      wishlistItemsContainer.innerHTML = items.map(item => `
+        <div class="flex items-center space-x-4 mb-4" data-id="${item.id}">
+          <img src="${buildDemoImages(item)[0]}" alt="${item.name}" class="w-16 h-16 rounded-lg object-cover">
+          <div class="flex-grow">
+            <h4 class="font-semibold text-gray-900 dark:text-white">${item.name}</h4>
+            <p class="text-sm text-gray-500 dark:text-gray-400">₹${item.price}</p>
+          </div>
+          <div class="flex flex-col items-end">
+            <button class="wishlist-remove text-sm text-red-500 hover:text-red-700 dark:hover:text-red-300 mt-1">Remove</button>
+            <button class="wishlist-move-to-cart text-sm mt-2 px-3 py-1 bg-indigo-600 text-white rounded">Add to Cart</button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    wishlistCount.textContent = wishlist.length;
+    wishlistCount.classList.toggle('hidden', wishlist.length === 0);
+    updateWishlistIcons();
+  }
+
+  function toggleWishlist(productId) {
+    const idx = wishlist.indexOf(productId);
+    if (idx === -1) {
+      wishlist.push(productId);
+      showToast('Added to wishlist');
+      const wishSvg = document.getElementById('wishlist-svg');
+      wishSvg.classList.add('animate__animated','animate__pulse');
+      wishSvg.addEventListener('animationend', ()=> wishSvg.classList.remove('animate__animated','animate__pulse'), {once:true});
+    } else {
+      wishlist.splice(idx,1);
+      showToast('Removed from wishlist');
+    }
+    saveWishlist();
+  }
+
+  function updateWishlistIcons() {
+    // update each heart overlay to filled/unfilled
+    document.querySelectorAll('.wishlist-toggle-btn').forEach(btn => {
+      const id = Number(btn.getAttribute('data-id'));
+      const inWish = wishlist.includes(id);
+      btn.title = inWish ? 'Remove from wishlist' : 'Add to wishlist';
+      btn.innerHTML = inWish
+        ? '<svg class="w-5 h-5 text-pink-600" fill="currentColor" viewBox="0 0 20 20"><path d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 21.364 3.172 10.828a4 4 0 010-5.656z"/></svg>'
+        : '<svg class="w-5 h-5 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 000-7.78z"/></svg>';
+    });
+
+    // modal-wish text reflect state
+    if (modalProductId !== null) {
+      modalWish.textContent = wishlist.includes(modalProductId) ? 'Remove from wishlist' : 'Wishlist';
+    }
+  }
+
+  /* -------------------------
+     Wishlist panel open/close
+  ------------------------- */
+  function openWishlist() {
+    wishlistOverlay.classList.remove('hidden');
+    wishlistPanel.classList.remove('translate-x-full');
+    wishlistPanel.classList.add('animate__animated','animate__slideInRight');
+    wishlistPanel.setAttribute('aria-hidden','false');
+    document.body.classList.add('no-scroll');
+    wishlistPanel.addEventListener('animationend', ()=> wishlistPanel.classList.remove('animate__animated','animate__slideInRight'), {once:true});
+  }
+  function closeWishlist() {
+    wishlistPanel.classList.add('animate__animated','animate__slideOutRight');
+    wishlistPanel.addEventListener('animationend', ()=> {
+      wishlistPanel.classList.remove('animate__animated','animate__slideOutRight');
+      wishlistPanel.classList.add('translate-x-full');
+      wishlistOverlay.classList.add('hidden');
+      wishlistPanel.setAttribute('aria-hidden','true');
+      document.body.classList.remove('no-scroll');
+    }, {once:true});
+  }
+
+  wishlistButton.addEventListener('click', openWishlist);
+  closeWishlistButton.addEventListener('click', closeWishlist);
+  wishlistOverlay.addEventListener('click', closeWishlist);
+
+  /* -------------------------
+     Initial rendering and attach listeners
+  ------------------------- */
+  renderProducts();
+  updateCartUI();
+  updateWishlistUI();
+
+  cartItemsContainer.addEventListener('click', (e) => {
+    const removeBtn = e.target.closest('.cart-item-remove');
+    if (removeBtn) {
+      const parent = removeBtn.closest('[data-id]');
+      const id = Number(parent.dataset.id);
+      cart = cart.filter(i => i.id !== id);
+      saveCart();
+      showToast('Removed from cart');
+    }
+  });
+  cartItemsContainer.addEventListener('change', (e) => {
+    const input = e.target.closest('.cart-item-quantity');
+    if (input) {
+      const parent = input.closest('[data-id]');
+      const id = Number(parent.dataset.id);
+      const item = cart.find(i=>i.id===id);
+      if (!item) return;
+      item.quantity = Math.max(1, Number(input.value));
+      saveCart();
+    }
+  });
+
+  // wishlist panel actions (remove / move to cart)
+  wishlistItemsContainer.addEventListener('click', (e) => {
+    const rem = e.target.closest('.wishlist-remove');
+    if (rem) {
+      const parent = rem.closest('[data-id]');
+      const id = Number(parent.dataset.id);
+      wishlist = wishlist.filter(x => x !== id);
+      saveWishlist();
+      showToast('Removed from wishlist');
+    }
+    const mv = e.target.closest('.wishlist-move-to-cart');
+    if (mv) {
+      const parent = mv.closest('[data-id]');
+      const id = Number(parent.dataset.id);
+      addToCart(id,1);
+      // optional: remove from wishlist after moving
+      wishlist = wishlist.filter(x => x !== id);
+      saveWishlist();
+    }
+  });
+
+  wishlistAddAllToCart.addEventListener('click', () => {
+    const items = wishlist.slice();
+    if (items.length === 0) { showToast('No items in wishlist'); return; }
+    items.forEach(id => addToCart(id,1));
+    wishlist = [];
+    saveWishlist();
+    showToast('Moved wishlist items to cart');
+  });
+
+  /* -------------------------
+     Cart panel open/close with animations
+  ------------------------- */
+  function openCart() {
+    cartOverlay.classList.remove('hidden');
+    cartPanel.classList.remove('translate-x-full');
+    cartPanel.classList.add('animate__animated','animate__slideInRight');
+    cartPanel.setAttribute('aria-hidden','false');
+    document.body.classList.add('no-scroll');
+    cartPanel.addEventListener('animationend', ()=> cartPanel.classList.remove('animate__animated','animate__slideInRight'), {once:true});
+  }
+  function closeCart() {
+    cartPanel.classList.add('animate__animated','animate__slideOutRight');
+    cartPanel.addEventListener('animationend', ()=> {
+      cartPanel.classList.remove('animate__animated','animate__slideOutRight');
+      cartPanel.classList.add('translate-x-full');
+      cartOverlay.classList.add('hidden');
+      cartPanel.setAttribute('aria-hidden','true');
+      document.body.classList.remove('no-scroll');
+    }, {once:true});
+  }
+
+  cartButton.addEventListener('click', openCart);
+  closeCartButton.addEventListener('click', closeCart);
+  cartOverlay.addEventListener('click', closeCart);
+
+  /* -------------------------
+     Mobile menu toggle
+  ------------------------- */
+  function toggleMobileMenu(force) {
+    const wasHidden = mobileMenu.classList.contains('hidden');
+    const show = typeof force === 'boolean' ? force : wasHidden;
+    if (show) {
+      mobileMenu.classList.remove('hidden');
+      mobileMenu.classList.add('animate__animated','animate__slideInDown');
+      mobileMenu.addEventListener('animationend', ()=> mobileMenu.classList.remove('animate__animated','animate__slideInDown'), {once:true});
+    } else {
+      mobileMenu.classList.add('animate__animated','animate__slideOutUp');
+      mobileMenu.addEventListener('animationend', ()=> {
+        mobileMenu.classList.add('hidden');
+        mobileMenu.classList.remove('animate__animated','animate__slideOutUp');
+      }, {once:true});
+    }
+  }
+  mobileMenuButton.addEventListener('click', ()=> toggleMobileMenu());
+
+  document.querySelectorAll('[data-scroll]').forEach(a => {
+    a.addEventListener('click', (e) => {
+      e.preventDefault();
+      const target = a.getAttribute('data-scroll');
+      if (target === 'top') window.scrollTo({top:0, behavior:'smooth'});
+      else {
+        const el = document.getElementById(target);
+        if (el) el.scrollIntoView({behavior:'smooth', block:'start'});
+      }
+      if (!mobileMenu.classList.contains('hidden')) toggleMobileMenu(false);
+    });
+  });
+
+  /* -------------------------
+     Product modal: open product details
+  ------------------------- */
+  function onProductOpen(e) {
+    // if clicked via heart overlay, this won't run because stopPropagation used
+    const id = Number(this.getAttribute('data-id'));
+    openProductModal(id);
+  }
+
+  function openProductModal(productId) {
+    const p = products.find(x=>x.id===productId);
+    if (!p) return;
+    modalProductId = p.id;
+    modalImages = buildDemoImages(p);
+    modalIndex = 0;
+    modalMainImage.src = modalImages[modalIndex];
+    modalName.textContent = p.name;
+    modalBrand.textContent = p.brand;
+    modalPrice.textContent = `₹${p.price}`;
+    modalDesc.textContent = p.desc;
+    modalThumbs.innerHTML = modalImages.map((src, i) => `<img src="${src}" class="w-20 h-20 object-cover rounded-md modal-thumb ${i===0 ? 'active' : ''}" data-idx="${i}" alt="thumb${i}" />`).join('');
+    modalOverlay.classList.remove('hidden');
+    modal.classList.remove('hidden');
+    const modalContainer = modal.querySelector('div > div');
+    modalContainer.classList.remove('animate__fadeOutDown');
+    modalContainer.classList.add('animate__animated','animate__fadeInUp','animate__faster');
+    modal.setAttribute('aria-hidden','false');
+    document.body.classList.add('no-scroll');
+
+    // attach thumb click
+    modalThumbs.querySelectorAll('.modal-thumb').forEach(img => {
+      img.addEventListener('click', (ev) => {
+        const idx = Number(img.getAttribute('data-idx'));
+        setModalIndex(idx);
+      });
+    });
+
+    // modal-wish text set
+    modalWish.textContent = wishlist.includes(modalProductId) ? 'Remove from wishlist' : 'Wishlist';
+  }
+
+  function closeProductModal() {
+    const modalContainer = modal.querySelector('div > div');
+    modalContainer.classList.remove('animate__fadeInUp');
+    modalContainer.classList.add('animate__animated','animate__fadeOutDown','animate__faster');
+    modalContainer.addEventListener('animationend', ()=> {
+      modal.classList.add('hidden');
+      modalOverlay.classList.add('hidden');
+      modalContainer.classList.remove('animate__animated','animate__fadeOutDown','animate__faster');
+      modal.setAttribute('aria-hidden','true');
+      document.body.classList.remove('no-scroll');
+      modalProductId = null;
+    }, {once:true});
+  }
+
+  function setModalIndex(i) {
+    modalIndex = (i + modalImages.length) % modalImages.length;
+    modalMainImage.src = modalImages[modalIndex];
+    modalThumbs.querySelectorAll('.modal-thumb').forEach(t => t.classList.remove('active'));
+    const active = modalThumbs.querySelector(`.modal-thumb[data-idx="${modalIndex}"]`);
+    if (active) active.classList.add('active');
+  }
+
+  modalPrev.addEventListener('click', ()=> setModalIndex(modalIndex - 1));
+  modalNext.addEventListener('click', ()=> setModalIndex(modalIndex + 1));
+  modalClose.addEventListener('click', closeProductModal);
+  modalOverlay.addEventListener('click', closeProductModal);
+
+  // keyboard support for modal
+  document.addEventListener('keydown', (e) => {
+    if (!modal.classList.contains('hidden')) {
+      if (e.key === 'Escape') closeProductModal();
+      if (e.key === 'ArrowLeft') setModalIndex(modalIndex - 1);
+      if (e.key === 'ArrowRight') setModalIndex(modalIndex + 1);
+    }
+  });
+
+  // Add to cart from modal
+  modalAddCart.addEventListener('click', ()=> {
+    const qty = Number(modalQty.value) || 1;
+    addToCart(modalProductId, qty, true);
+    showToast('Added to cart from product');
+    closeProductModal();
+  });
+
+  // Wishlist from modal
+  modalWish.addEventListener('click', ()=> {
+    if (modalProductId === null) return;
+    toggleWishlist(modalProductId);
+    modalWish.textContent = wishlist.includes(modalProductId) ? 'Remove from wishlist' : 'Wishlist';
+    updateWishlistIcons();
+  });
+
+  /* -------------------------
+     Subscribe form demo
+  ------------------------- */
+  subscribeForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const email = document.getElementById('subscribe-email').value.trim();
+    if (!email) {
+      showToast('Enter a valid email');
+      return;
+    }
+    showToast('Subscribed! Check your inbox ✨');
+    subscribeForm.reset();
+  });
+
+  /* -------------------------
+     Read more demo
+  ------------------------- */
+  readMoreBtn.addEventListener('click', (e)=> {
+    e.preventDefault();
+    const el = document.getElementById('about-section');
+    if (el) el.scrollIntoView({behavior:'smooth', block:'start'});
+    showToast('Enjoy our sustainability story!');
+  });
+
+  /* -------------------------
+     Checkout demo
+  ------------------------- */
+  checkoutButton.addEventListener('click', ()=> {
+    if (cart.length === 0) { showToast('Your cart is empty'); return; }
+    showToast('Demo checkout — not implemented');
+  });
+
+  /* -------------------------
+     Keyboard: Esc closes cart or modal or mobile menu
+  ------------------------- */
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      if (!cartPanel.classList.contains('translate-x-full')) closeCart();
+      if (!modal.classList.contains('hidden')) closeProductModal();
+      if (!mobileMenu.classList.contains('hidden')) toggleMobileMenu(false);
+      if (!wishlistPanel.classList.contains('translate-x-full')) closeWishlist();
+    }
+  });
+
+  /* -------------------------
+     Small flourish on load
+  ------------------------- */
+  document.querySelectorAll('header nav a, header nav button').forEach((el, i) => {
+    el.classList.add('animate__animated','animate__fadeInDown');
+    el.style.animationDelay = `${0.05 + i * 0.02}s`;
+    el.addEventListener('animationend', ()=> el.classList.remove('animate__animated','animate__fadeInDown'), {once:true});
+  });
+
+  /* -------------------------
+     keyboard accessibility for product cards: Enter opens modal
+  ------------------------- */
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && document.activeElement && document.activeElement.classList.contains('product-open')) {
+      e.preventDefault();
+      const id = Number(document.activeElement.getAttribute('data-id'));
+      openProductModal(id);
+    }
+  });
+
+  /* -------------------------
+     Search handling
+  ------------------------- */
+  headerSearch.addEventListener('input', (e) => {
+    currentFilter = headerSearch.value.trim();
+    clearSearchBtn.classList.toggle('hidden', currentFilter === '');
+    renderProducts();
+  });
+  clearSearchBtn.addEventListener('click', () => {
+    headerSearch.value = '';
+    currentFilter = '';
+    clearSearchBtn.classList.add('hidden');
+    renderProducts();
+  });
+
+});
+</script>
+<script>
+  const toggleBtn = document.getElementById('mobile-search-toggle');
+  const searchContainer = document.getElementById('search-container');
+
+  if (toggleBtn && searchContainer) {
+    toggleBtn.addEventListener('click', () => {
+      const isHidden = searchContainer.classList.contains('hidden');
+      if (isHidden) {
+        searchContainer.classList.remove('hidden');
+        searchContainer.classList.add('flex', 'animate__animated', 'animate__fadeInDown');
+      } else {
+        searchContainer.classList.add('animate__fadeOutUp');
+        setTimeout(() => {
+          searchContainer.classList.add('hidden');
+          searchContainer.classList.remove('animate__fadeOutUp', 'flex');
+        }, 300);
+      }
+    });
+  }
+</script>
+
+
+</body>
+</html>
