@@ -1008,13 +1008,15 @@ const products = [
     showToast('Enjoy our sustainability story!');
   });
 
-  /* -------------------------
-     Checkout demo
-  ------------------------- */
   checkoutButton.addEventListener('click', ()=> {
-    if (cart.length === 0) { showToast('Your cart is empty'); return; }
-    showToast('Demo checkout — not implemented');
-  });
+  if (cart.length === 0) { showToast('Your cart is empty'); return; }
+
+  // Save total in localStorage and redirect
+  const subtotal = cart.reduce((s,it)=> s + (it.price * it.quantity), 0);
+  localStorage.setItem('checkoutTotal', subtotal);
+  window.location.href = 'checkout.html';
+});
+
 
   /* -------------------------
      Keyboard: Esc closes cart or modal or mobile menu
