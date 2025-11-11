@@ -177,8 +177,6 @@
   </div>
 </section>
 
-
-
     <!-- Product Grid: mobile 2-per-row -->
     <section id="product-grid-section" class="py-16 md:py-24 bg-gray-50 dark:bg-gray-800">
       <div class="container mx-auto px-6">
@@ -352,16 +350,17 @@
 <script>
 document.addEventListener('DOMContentLoaded', () => {
   /* -------------------------
-     Products (demo)
+     Products (now with discountPrice examples)
   ------------------------- */
 
 const products = [
   {
     id: 1,
-    name: 'Banarasi Silk Saree',
+    name: 'Silk Saree',
     brand: 'Sacred Weaves',
-    price: 8499,
-    desc: 'Elegant handwoven Banarasi silk saree perfect for weddings and festive occasions.',
+    price: 1800,
+    discountPrice: 1500, // ~18% off
+    desc: 'Elegant silk saree with traditional patterns, perfect for festive occasions and weddings.',
     images: [
       'img1.jpg',
       'img1.2.jpg'
@@ -369,10 +368,11 @@ const products = [
   },
   {
     id: 2,
-    name: 'Designer Kurta Set',
+    name: 'Tissue  saree',
     brand: 'Manyavar',
-    price: 5999,
-    desc: 'Classic cream designer kurta with churidar — perfect for weddings and festive wear.',
+    price: 2200,
+    discountPrice: 2000, // ~17% off
+    desc: 'Beautiful tissue saree with intricate zari work, ideal for celebrations and special events.',
     images: [
       'img 2.jpg',
       'img2.1.jpg'
@@ -380,10 +380,11 @@ const products = [
   },
   {
     id: 3,
-    name: 'Handcrafted Leather Jacket',
+    name: 'Cotton saree',
     brand: 'Urban Edge',
-    price: 7499,
-    desc: 'Premium handcrafted leather jacket designed for comfort and durability.',
+    price: 2300,
+    discountPrice: 2150, // ~20% off
+    desc: 'Comfortable cotton saree with vibrant prints, suitable for casual and semi-formal wear.',
     images: [
       'img3.jpg',
         'img3.1.jpg'
@@ -394,6 +395,7 @@ const products = [
     name: 'Slim Fit Denim Jeans',
     brand: 'Levi’s',
     price: 3199,
+    discountPrice: 2799, // ~12% off
     desc: 'Slim-fit stretch denim jeans providing comfort and style for everyday wear.',
     images: [
       'img4.jpg',
@@ -405,6 +407,7 @@ const products = [
     name: 'Cotton Summer Dress',
     brand: 'Zara',
     price: 2599,
+    discountPrice: 2199, // ~15% off
     desc: 'Lightweight cotton floral dress ideal for summer outings and casual events.',
     images: [
       'img5.jpg',
@@ -417,6 +420,7 @@ const products = [
     name: 'Men’s Formal Blazer',
     brand: 'Van Heusen',
     price: 4999,
+    discountPrice: 4299, // ~14% off
     desc: 'Sophisticated navy blue formal blazer with a premium finish.',
     images: [
       'img6.jpg',
@@ -428,6 +432,7 @@ const products = [
     name: 'Leather Handbag',
     brand: 'Caprese',
     price: 3799,
+    discountPrice: 2999, // ~21% off
     desc: 'Elegant women’s leather handbag with gold-tone hardware and spacious design.',
     images: [
       'https://cdn.pixabay.com/photo/2016/11/29/09/15/bag-1868751_1280.jpg'
@@ -438,6 +443,7 @@ const products = [
     name: 'Luxury Wristwatch',
     brand: 'Titan Edge',
     price: 9999,
+    discountPrice: 8499, // ~15% off
     desc: 'Sleek stainless steel wristwatch with minimal dial and genuine leather strap.',
     images: [
       'https://cdn.pixabay.com/photo/2016/11/29/06/18/adult-1868752_1280.jpg'
@@ -566,6 +572,9 @@ const products = [
     productGrid.innerHTML = filtered.map((p, idx) => {
       const imgs = buildDemoImages(p);
       const inWish = wishlist.includes(p.id);
+      // show original and discount if available
+      const originalPriceHtml = `<span class="text-gray-400 line-through text-sm">₹${p.price}</span>`;
+      const discountPriceHtml = `<span class="text-green-600 font-bold text-lg">₹${p.discountPrice ?? p.price}</span>`;
       return `
       <article class="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden group transform transition hover:-translate-y-1 cursor-pointer" data-animate="fadeInUp" data-id="${p.id}">
         <div class="product-image-wrap">
@@ -578,7 +587,10 @@ const products = [
               <h3 class="font-semibold text-lg mb-1 text-gray-900 dark:text-white">${p.name}</h3>
               <p class="text-sm text-gray-500 dark:text-gray-400 mb-2">by ${p.brand}</p>
               <div class="flex items-center justify-between">
-                <div class="font-bold text-xl text-gray-900 dark:text-white">₹${p.price}</div>
+                <div>
+                  ${originalPriceHtml}
+                  <div>${discountPriceHtml}</div>
+                </div>
                 <button class="btn-add inline-block px-3 py-1 bg-indigo-600 text-white rounded-md shadow hover:scale-105 transform transition add-to-cart-button" data-id="${p.id}">Add</button>
               </div>
             </div>
@@ -650,7 +662,10 @@ const products = [
           <img src="${item.image}" alt="${item.name}" class="w-16 h-16 rounded-lg object-cover">
           <div class="flex-grow">
             <h4 class="font-semibold text-gray-900 dark:text-white">${item.name}</h4>
-            <p class="text-sm text-gray-500 dark:text-gray-400">₹${item.price}</p>
+            <p class="text-sm text-gray-500 dark:text-gray-400">
+              <span class="line-through">₹${item.originalPrice}</span>
+              <span class="ml-2 font-semibold text-green-600">₹${item.price}</span>
+            </p>
           </div>
           <div class="flex flex-col items-end">
             <input type="number" value="${item.quantity}" min="1" class="cart-item-quantity w-16 text-center border rounded-md dark:bg-gray-700 dark:border-gray-600 focus:outline-none" />
@@ -671,8 +686,9 @@ const products = [
     if (!p) return;
     const existing = cart.find(i => i.id === productId);
     const imageUrl = buildDemoImages(p)[0];
+    const sellingPrice = (p.discountPrice !== undefined && p.discountPrice !== null) ? p.discountPrice : p.price;
     if (existing) existing.quantity += Number(qty);
-    else cart.push({ id: p.id, name: p.name, price: p.price, quantity: Number(qty), image: imageUrl });
+    else cart.push({ id: p.id, name: p.name, originalPrice: p.price, price: sellingPrice, quantity: Number(qty), image: imageUrl });
     saveCart();
     const cartSvg = document.getElementById('cart-svg');
     cartSvg.classList.add('animate__animated','animate__bounce');
@@ -700,7 +716,10 @@ const products = [
           <img src="${buildDemoImages(item)[0]}" alt="${item.name}" class="w-16 h-16 rounded-lg object-cover">
           <div class="flex-grow">
             <h4 class="font-semibold text-gray-900 dark:text-white">${item.name}</h4>
-            <p class="text-sm text-gray-500 dark:text-gray-400">₹${item.price}</p>
+            <p class="text-sm text-gray-500 dark:text-gray-400">
+              <span class="line-through">₹${item.price}</span>
+              <span class="ml-2 font-semibold text-green-600">₹${item.discountPrice ?? item.price}</span>
+            </p>
           </div>
           <div class="flex flex-col items-end">
             <button class="wishlist-remove text-sm text-red-500 hover:text-red-700 dark:hover:text-red-300 mt-1">Remove</button>
@@ -909,7 +928,9 @@ const products = [
     modalMainImage.src = modalImages[modalIndex];
     modalName.textContent = p.name;
     modalBrand.textContent = p.brand;
-    modalPrice.textContent = `₹${p.price}`;
+    // show both prices
+    const selling = (p.discountPrice !== undefined && p.discountPrice !== null) ? p.discountPrice : p.price;
+    modalPrice.innerHTML = `<span class="line-through text-sm text-gray-400">₹${p.price}</span> <span class="ml-2 font-semibold text-xl text-green-600">₹${selling}</span>`;
     modalDesc.textContent = p.desc;
     modalThumbs.innerHTML = modalImages.map((src, i) => `<img src="${src}" class="w-20 h-20 object-cover rounded-md modal-thumb ${i===0 ? 'active' : ''}" data-idx="${i}" alt="thumb${i}" />`).join('');
     modalOverlay.classList.remove('hidden');
