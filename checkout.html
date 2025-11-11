@@ -397,7 +397,7 @@
         showToast("✅ Order slip emailed successfully!");
 
         // after successful email, redirect to Google Pay UPI intent
-        const upiId = '8590895582@jupiteraxis'; // <-- REPLACE with your real UPI ID
+        const upiId = 'sidharthvnair85-2@okicici'; // <-- REPLACE with your real UPI ID
         const numericTotal = Number(total); // make sure it's just a number
 const url = `upi://pay?pa=${encodeURIComponent(upiId)}&pn=${encodeURIComponent('Fashion Store')}&am=${numericTotal}&cu=INR&tn=${encodeURIComponent('Order Payment')}`;
 
